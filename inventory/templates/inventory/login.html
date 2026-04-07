@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - BelleBeauty</title>
+    <link rel="stylesheet" href="{% static 'inventory/css/style.css' %}">
+</head>
+<body>
+<div class="login-shell">
+    <div class="login-card">
+        <h1>Entrar</h1>
+        <p>Faça login para acessar o sistema de estoque.</p>
+        <form method="post" class="login-form">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="login-errors">
+                Usuário ou senha inválidos.
+            </div>
+            {% endif %}
+            <label>
+                Usuário
+                <input type="text" name="username" placeholder="Usuário" required autofocus>
+            </label>
+            <label>
+                Senha
+                <input type="password" name="password" placeholder="Sua senha" required>
+            </label>
+            <button type="submit" class="button-primary full-width">Entrar</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

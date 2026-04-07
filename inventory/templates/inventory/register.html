@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - BelleBeauty</title>
+    <link rel="stylesheet" href="{% static 'inventory/css/style.css' %}">
+</head>
+<body>
+<div class="login-shell">
+    <div class="login-card">
+        <h1>Cadastro</h1>
+        <p>Crie seu usuário para acessar o sistema.</p>
+        <form method="post" class="login-form">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="login-errors">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        {{ error }}<br>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    {{ error }}<br>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <label>
+                Usuário
+                {{ form.username }}
+            </label>
+            <label>
+                Senha
+                {{ form.password }}
+            </label>
+            <button type="submit" class="button-primary full-width">Criar conta</button>
+        </form>
+        <p class="auth-link">Já tem conta? <a href="{% url 'login' %}">Entrar</a></p>
+    </div>
+</div>
+</body>
+</html>

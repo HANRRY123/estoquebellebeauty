@@ -1,0 +1,118 @@
+{% extends 'inventory/base.html' %}
+{% block title %}{% if edit_mode %}Editar Produto{% else %}Adicionar Produto{% endif %} - BelleBeauty{% endblock %}
+{% block page_title %}{% if edit_mode %}Editar Produto{% else %}Adicionar Produto{% endif %}{% endblock %}
+
+{% block content %}
+<div class="popup-overlay">
+    <div class="popup-card">
+        <div class="product-form-header">
+            <div>
+                <strong>{% if edit_mode %}Editar Produto{% else %}Adicionar Produto{% endif %}</strong>
+            </div>
+            <a href="{% url 'estoque' %}" class="button-close" aria-label="Fechar">×</a>
+        </div>
+
+        <form method="post" class="product-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="form-errors">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+        <div class="form-grid">
+            <div class="form-field">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+            <div class="form-field">
+                {{ form.quantity.label_tag }}
+                {{ form.quantity }}
+                {{ form.quantity.errors }}
+            </div>
+            <div class="form-field">
+                {{ form.category.label_tag }}
+                {{ form.category }}
+                {{ form.category.errors }}
+            </div>
+            <div class="form-field">
+                {{ form.color.label_tag }}
+                {{ form.color }}
+                {{ form.color.errors }}
+            </div>
+            <div class="form-field">
+                {{ form.size.label_tag }}
+                {{ form.size }}
+                {{ form.size.errors }}
+            </div>
+            <div class="form-field">
+                {{ form.sku.label_tag }}
+                {{ form.sku }}
+                {{ form.sku.errors }}
+            </div>
+            <div class="form-field">
+                {{ form.cost_price.label_tag }}
+                {{ form.cost_price }}
+                {{ form.cost_price.errors }}
+            </div>
+            <div class="form-field">
+                {{ form.sale_price.label_tag }}
+                {{ form.sale_price }}
+                {{ form.sale_price.errors }}
+            </div>
+            <div class="form-field file-field">
+                {{ form.image1.label_tag }}
+                {{ form.image1 }}
+                {{ form.image1.errors }}
+                <div class="image-preview" id="preview-image1">
+                    {% if edit_mode and product.image1 %}
+                    <img src="{{ product.image1.url }}" alt="Imagem 1 de {{ product.name }}">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-field file-field">
+                {{ form.image2.label_tag }}
+                {{ form.image2 }}
+                {{ form.image2.errors }}
+                <div class="image-preview" id="preview-image2">
+                    {% if edit_mode and product.image2 %}
+                    <img src="{{ product.image2.url }}" alt="Imagem 2 de {{ product.name }}">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="button-primary full-width">Salvar</button>
+        </div>
+    </form>
+    </div>
+</div>
+
+<script>
+    function updateImagePreview(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        if (!input || !preview) return;
+
+        input.addEventListener('change', function () {
+            const file = input.files && input.files[0];
+            if (!file) {
+                preview.innerHTML = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                preview.innerHTML = '<img src="' + event.target.result + '" alt="Preview">';
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateImagePreview('id_image1', 'preview-image1');
+        updateImagePreview('id_image2', 'preview-image2');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Usuários - BelleBeauty{% endblock %}
+
+{% block page_title %}Gestão de Usuários{% endblock %}
+
+{% block content %}
+<div class="page-section">
+    <div class="section-header">
+        <h2>Contas de acesso</h2>
+        <p>Veja todos os usuários criados no sistema.</p>
+    </div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Usuário</th>
+                    <th>E-mail</th>
+                    <th>Staff</th>
+                    <th>Superuser</th>
+                    <th>Criado em</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.is_staff|yesno:"Sim,Não" }}</td>
+                    <td>{{ user.is_superuser|yesno:"Sim,Não" }}</td>
+                    <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">Nenhum usuário encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="admin-note">
+        <p>Para criar ou editar contas, use o Django admin em <a href="/admin/" class="link">/admin/</a>.</p>
+    </div>
+</div>
+{% endblock %}

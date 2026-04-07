@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BelleBeauty{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'inventory/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'inventory/css/product_form.css' %}">
+</head>
+
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <img src="{% static 'inventory/images/bellebeauty-logo.png' %}" alt="BelleBeauty" class="brand-image" onerror="this.style.display='none'">
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item{% if request.path == '/' %} active{% endif %}">
+                    <span class="nav-icon">🏠</span>Dashboard
+                </a>
+                <a href="/estoque/" class="nav-item{% if request.path|slice:":8" == '/estoque' %} active{% endif %}">
+                    <span class="nav-icon">📦</span>Estoque
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">📊</span>Relatórios
+                </a>
+                <a href="/vendas/" class="nav-item{% if request.path|slice:":7" == '/vendas/' %} active{% endif %}">
+                    <span class="nav-icon">🛒</span>Vendas
+                </a>
+                <a href="/clientes/" class="nav-item{% if request.path|slice:":9" == '/clientes' %} active{% endif %}">
+                    <span class="nav-icon">👥</span>Clientes
+                </a>
+                <a href="/entregas/" class="nav-item{% if request.path|slice:":9" == '/entregas' %} active{% endif %}">
+                    <span class="nav-icon">📦</span>Entregas
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">🏢</span>Fornecedores
+                </a>
+                <a href="/financeiro/" class="nav-item{% if request.path|slice:":11" == '/financeiro' %} active{% endif %}">
+                    <span class="nav-icon">💳</span>Financeiro
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">📚</span>Catálogo
+                </a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="nav-item logout-item">
+                    <span class="nav-icon">⏻</span>Sair
+                </a>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <main class="content">
+            <header class="page-header">
+                <div>
+                    <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                </div>
+                <div class="page-actions">
+                    {% if user.is_authenticated and user.is_staff and request.path == '/' %}
+                    <a href="{% url 'user_list' %}" class="button-secondary">Usuários</a>
+                {% endif %}
+                </div>
+            </header>
+
+            {% if user.is_authenticated %}
+            <div id="logout-timer" class="logout-timer">Logout automático em 10:00</div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {% if user.is_authenticated %}
+    <script>
+        (function() {
+            var logoutUrl = '{% url "logout" %}';
+            var timeoutMs = 10 * 60 * 1000; // 10 minutos
+            var remainingMs = timeoutMs;
+            var timer = null;
+            var countdownElement = document.getElementById('logout-timer');
+
+            function formatTime(ms) {
+                var totalSeconds = Math.ceil(ms / 1000);
+                var minutes = Math.floor(totalSeconds / 60);
+                var seconds = totalSeconds % 60;
+                return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+            }
+
+            function updateCountdown() {
+                if (!countdownElement) return;
+                countdownElement.textContent = 'Logout automático em ' + formatTime(remainingMs);
+            }
+
+            function resetTimer() {
+                clearTimeout(timer);
+                remainingMs = timeoutMs;
+                updateCountdown();
+                timer = setTimeout(function() {
+                    window.location.href = logoutUrl;
+                }, timeoutMs);
+            }
+
+            ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'].forEach(function(event) {
+                document.addEventListener(event, function() {
+                    resetTimer();
+                }, true);
+            });
+
+            setInterval(function() {
+                remainingMs -= 1000;
+                if (remainingMs < 0) {
+                    remainingMs = 0;
+                }
+                updateCountdown();
+            }, 1000);
+
+            resetTimer();
+        })();
+    </script>
+    {% endif %}
+</body>
+
+</html>

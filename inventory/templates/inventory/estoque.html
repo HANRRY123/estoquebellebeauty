@@ -1,0 +1,73 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Estoque - BelleBeauty{% endblock %}
+{% block page_title %}Estoque{% endblock %}
+
+{% block content %}
+<div class="toolbar-row">
+    <div class="toolbar-left">
+        <form class="search-bar" method="get">
+            <input type="search" name="q" placeholder="Buscar produtos..." value="{{ query }}">
+            <button type="submit">🔍</button>
+        </form>
+        <a href="{% url 'product_add' %}" class="button-primary add-product-button">➕ Adicionar produto</a>
+    </div>
+    <div class="filters">
+        <label>
+            Cor
+            <select name="color" onchange="this.form.submit()">
+                <option>Todas</option>
+                {% for item in colors %}
+                <option value="{{ item }}" {% if item == color %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Categoria
+            <select name="category" onchange="this.form.submit()">
+                <option>Todas</option>
+                {% for item in categories %}
+                <option value="{{ item }}" {% if item == category %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+</div>
+<div class="product-grid">
+    {% for product in products %}
+    <article class="product-card">
+        <div class="product-preview">
+            {% if product.image1 %}
+            <img src="{{ product.image1.url }}" alt="{{ product.name }}">
+            {% elif product.image2 %}
+            <img src="{{ product.image2.url }}" alt="{{ product.name }}">
+            {% else %}
+            <div class="product-placeholder">📦</div>
+            {% endif %}
+            <a href="{% url 'product_edit' product.pk %}" class="edit-icon-button" title="Editar produto">✏️</a>
+        </div>
+        <h2>{{ product.name }}</h2>
+        {% if product.category %}
+        <p><strong>Categoria:</strong> {{ product.category }}</p>
+        {% endif %}
+        {% if product.color %}
+        <p><strong>Cor:</strong> {{ product.color }}</p>
+        {% endif %}
+        <p><strong>Custo:</strong> R$ {{ product.cost_price|floatformat:2 }}</p>
+        <p><strong>Valor:</strong> R$ {{ product.sale_price|floatformat:2 }}</p>
+        <p><strong>% Lucro:</strong> {{ product.profit_percentage|floatformat:0 }}%</p>
+        <p><strong>SKU:</strong> {{ product.sku }}</p>
+        <p><strong>ID:</strong> {{ product.id }}</p>
+        <p><strong>Qtd:</strong> {{ product.quantity }}</p>
+        {% if product.size %}
+        <p><strong>Tam.:</strong> {{ product.size }}</p>
+        {% endif %}
+        <form method="post" action="{% url 'product_delete' product.pk %}" class="delete-form">
+            {% csrf_token %}
+            <button type="submit" class="button-danger" onclick="return confirm('Tem certeza que deseja excluir este produto?');">Excluir</button>
+        </form>
+    </article>
+    {% empty %}
+    <div class="empty-state">Nenhum produto encontrado.</div>
+    {% endfor %}
+</div>
+{% endblock %}

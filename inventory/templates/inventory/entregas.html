@@ -1,0 +1,149 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Entregas - BelleBeauty{% endblock %}
+
+{% block page_title %}Entregas{% endblock %}
+
+{% block content %}
+<div class="toolbar-row">
+    <div></div>
+    <button type="button" class="button-primary add-product-button" id="open-delivery-modal">+ Nova Entrega</button>
+</div>
+
+<div class="page-section">
+    <div class="table-panels">
+        <div class="panel">
+            <h2 class="panel-title">Entregas registradas</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Cliente</th>
+                            <th>Saída</th>
+                            <th>Previsão</th>
+                            <th>Endereço</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for delivery in deliveries %}
+                        <tr>
+                            <td>{{ delivery.sale.product.name }}</td>
+                            <td>{{ delivery.client.name }}</td>
+                            <td>{{ delivery.departure_date }}</td>
+                            <td>{{ delivery.expected_date }}</td>
+                            <td>{{ delivery.client_address }}</td>
+                            <td>{{ delivery.get_status_display }}</td>
+                            <td>
+                                <form method="post" action="{% url 'delivery_status' delivery.id %}">
+                                    {% csrf_token %}
+                                    <select name="status" class="select-input">
+                                        {% for code,label in delivery.STATUS_CHOICES %}
+                                        <option value="{{ code }}" {% if delivery.status == code %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="button-primary" style="margin-top: 8px;">Atualizar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">Nenhuma entrega registrada ainda.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="delivery-modal" aria-hidden="true">
+    <div class="modal-card">
+        <button type="button" class="button-close" id="close-delivery-modal">×</button>
+        <h2>Nova Entrega</h2>
+        <form method="post" class="sale-form">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-field full-width">
+                    {{ form.sale.label_tag }}
+                    {{ form.sale }}
+                    {{ form.sale.errors }}
+                </div>
+                <div class="form-field full-width">
+                    {{ form.client.label_tag }}
+                    {{ form.client }}
+                    {{ form.client.errors }}
+                </div>
+                <div class="form-field full-width">
+                    <div class="form-label">Endereço do cliente</div>
+                    <div id="client-address" class="address-preview">Selecione um cliente para ver o endereço.</div>
+                </div>
+                <div class="form-field">
+                    {{ form.departure_date.label_tag }}
+                    {{ form.departure_date }}
+                    {{ form.departure_date.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.expected_date.label_tag }}
+                    {{ form.expected_date }}
+                    {{ form.expected_date.errors }}
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="button-primary full-width">Registrar Entrega</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function updateClientAddress() {
+        var select = document.getElementById('id_client_select');
+        var addressText = document.getElementById('client-address');
+        if (!select || !addressText) return;
+        var option = select.options[select.selectedIndex];
+        var address = option.getAttribute('data-address') || 'Endereço não cadastrado.';
+        addressText.textContent = address;
+    }
+
+    document.getElementById('open-delivery-modal').addEventListener('click', function() {
+        document.getElementById('delivery-modal').style.display = 'grid';
+        updateClientAddress();
+    });
+    document.getElementById('close-delivery-modal').addEventListener('click', function() {
+        document.getElementById('delivery-modal').style.display = 'none';
+    });
+    document.addEventListener('click', function(event) {
+        var modal = document.getElementById('delivery-modal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    var clientAddresses = {
+        {% for client in clients %}
+        '{{ client.id }}': '{{ client.address|escapejs }}'{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    var clientSelect = document.getElementById('id_client_select');
+    function updateClientAddress() {
+        if (!clientSelect) return;
+        var addressText = document.getElementById('client-address');
+        var value = clientSelect.value;
+        var address = clientAddresses[value] || 'Endereço não cadastrado.';
+        addressText.textContent = address;
+    }
+
+    if (clientSelect) {
+        clientSelect.addEventListener('change', updateClientAddress);
+        updateClientAddress();
+    }
+    {% if form.errors %}
+    document.getElementById('delivery-modal').style.display = 'grid';
+    {% endif %}
+</script>
+{% endblock %}

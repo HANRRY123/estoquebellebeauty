@@ -1,0 +1,132 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Vendas - BelleBeauty{% endblock %}
+{% block page_title %}Vendas{% endblock %}
+
+{% block content %}
+<div class="toolbar-row">
+    <form class="toolbar-left" method="get">
+        <div class="search-bar">
+            <input type="search" name="q" placeholder="Buscar por cliente..." value="{{ query }}">
+            <button type="submit">🔍</button>
+        </div>
+        <div class="filters">
+            <label>
+                Método
+                <select name="payment" onchange="this.form.submit()">
+                <option value="all" {% if payment == 'all' %}selected{% endif %}>Todos os Métodos</option>
+                <option value="cash" {% if payment == 'cash' %}selected{% endif %}>Dinheiro</option>
+                <option value="credit_card" {% if payment == 'credit_card' %}selected{% endif %}>Cartão de Crédito</option>
+                <option value="debit_card" {% if payment == 'debit_card' %}selected{% endif %}>Cartão de Débito</option>
+                <option value="pix" {% if payment == 'pix' %}selected{% endif %}>Pix</option>
+                <option value="boleto" {% if payment == 'boleto' %}selected{% endif %}>Boleto</option>
+            </select>
+        </label>
+        </div>
+    </form>
+    <button type="button" class="button-primary add-product-button" id="open-sale-modal">🛒 Nova Venda</button>
+</div>
+
+<div class="sales-grid">
+    {% for sale in sales %}
+    <article class="sale-card">
+        <div class="sale-heading">
+            <span class="sale-icon">🛒</span>
+            <div>
+                <strong>{{ sale.product.name }}</strong>
+                <div class="sale-meta">SKU: {{ sale.product.sku }} • x{{ sale.quantity }}</div>
+            </div>
+        </div>
+        <div class="sale-details">
+            {% if sale.customer %}<div>Cliente: <strong>{{ sale.customer }}</strong></div>{% endif %}
+            <div>Pagamento: <strong>{{ sale.get_payment_type_display }}</strong></div>
+            <div>Data: <strong>{{ sale.sale_date }}</strong></div>
+            <div>Preço: <strong>R$ {{ sale.unit_price|floatformat:2 }}</strong></div>
+            <div>Custo: <strong>R$ {{ sale.unit_cost|default:sale.product.cost_price|floatformat:2 }}</strong></div>
+            <div>Total: <strong>R$ {{ sale.total_revenue|floatformat:2 }}</strong></div>
+            {% if sale.color %}<div>Cor: <strong>{{ sale.color }}</strong></div>{% endif %}
+            {% if sale.notes %}<div>Obs: {{ sale.notes }}</div>{% endif %}
+        </div>
+    </article>
+    {% empty %}
+    <div class="empty-state">Nenhuma venda registrada ainda.</div>
+    {% endfor %}
+</div>
+
+<div class="modal-overlay" id="sale-modal" aria-hidden="true">
+    <div class="modal-card">
+        <button type="button" class="button-close" id="close-sale-modal">×</button>
+        <h2>Registrar Venda</h2>
+        <form method="post" class="sale-form">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-field">
+                    {{ form.product.label_tag }}
+                    {{ form.product }}
+                    {{ form.product.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.quantity.label_tag }}
+                    {{ form.quantity }}
+                    {{ form.quantity.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.color.label_tag }}
+                    {{ form.color }}
+                    {{ form.color.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.customer.label_tag }}
+                    {{ form.customer }}
+                    {{ form.customer.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.payment_type.label_tag }}
+                    {{ form.payment_type }}
+                    {{ form.payment_type.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.sale_date.label_tag }}
+                    {{ form.sale_date }}
+                    {{ form.sale_date.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.unit_price.label_tag }}
+                    {{ form.unit_price }}
+                    {{ form.unit_price.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.unit_cost.label_tag }}
+                    {{ form.unit_cost }}
+                    {{ form.unit_cost.errors }}
+                </div>
+                <div class="form-field full-width">
+                    {{ form.notes.label_tag }}
+                    {{ form.notes }}
+                    {{ form.notes.errors }}
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="button-primary full-width">Registrar Venda</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('open-sale-modal').addEventListener('click', function() {
+        document.getElementById('sale-modal').style.display = 'grid';
+    });
+    document.getElementById('close-sale-modal').addEventListener('click', function() {
+        document.getElementById('sale-modal').style.display = 'none';
+    });
+    document.addEventListener('click', function(event) {
+        var modal = document.getElementById('sale-modal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    {% if form.errors %}
+    document.getElementById('sale-modal').style.display = 'grid';
+    {% endif %}
+</script>
+{% endblock %}

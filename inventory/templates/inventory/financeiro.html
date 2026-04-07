@@ -1,0 +1,121 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Financeiro - BelleBeauty{% endblock %}
+
+{% block page_title %}Controle Financeiro{% endblock %}
+
+{% block content %}
+<div class="toolbar-row">
+    <div></div>
+    <button type="button" class="button-primary add-product-button" id="open-finance-modal">+ Nova Movimentação</button>
+</div>
+
+<div class="page-section">
+    <div class="table-panels">
+        <div class="panel">
+            <h2 class="panel-title">Saldo no banco</h2>
+            <div class="stat-card" style="border-radius: 24px; padding: 28px; background: linear-gradient(135deg, rgba(56, 198, 255, 0.14), rgba(76, 156, 255, 0.16));">
+                <span>Saldo total</span>
+                <strong style="font-size: 2.5rem; display: block; margin-top: 16px;">R$ {{ bank_balance|floatformat:2 }}</strong>
+            </div>
+            <div class="stat-card" style="margin-top: 20px; background: var(--surface);">
+                <div style="display: grid; gap: 12px;">
+                    <div><strong>Receitas de vendas:</strong> R$ {{ total_sales|floatformat:2 }}</div>
+                    <div><strong>Entradas manuais:</strong> R$ {{ total_entries|floatformat:2 }}</div>
+                    <div><strong>Saídas manuais:</strong> R$ {{ total_exits|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2 class="panel-title">Movimentações recentes</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Motivo</th>
+                            <th>Valor</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movement in movements %}
+                        <tr>
+                            <td>{{ movement.date }}</td>
+                            <td>{{ movement.type }}</td>
+                            <td>{{ movement.category }}</td>
+                            <td>R$ {{ movement.amount|floatformat:2 }}</td>
+                            <td>{{ movement.description }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">Nenhuma movimentação encontrada.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="finance-modal" aria-hidden="true">
+    <div class="modal-card">
+        <button type="button" class="button-close" id="close-finance-modal">×</button>
+        <h2>Registrar Movimentação</h2>
+        <form method="post" class="sale-form">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-field">
+                    {{ form.movement_type.label_tag }}
+                    {{ form.movement_type }}
+                    {{ form.movement_type.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.amount.label_tag }}
+                    {{ form.amount }}
+                    {{ form.amount.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.category.label_tag }}
+                    {{ form.category }}
+                    {{ form.category.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.date.label_tag }}
+                    {{ form.date }}
+                    {{ form.date.errors }}
+                </div>
+                <div class="form-field full-width">
+                    {{ form.description.label_tag }}
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="button-primary full-width">Salvar Movimentação</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('open-finance-modal').addEventListener('click', function() {
+        document.getElementById('finance-modal').style.display = 'grid';
+    });
+    document.getElementById('close-finance-modal').addEventListener('click', function() {
+        document.getElementById('finance-modal').style.display = 'none';
+    });
+    document.addEventListener('click', function(event) {
+        var modal = document.getElementById('finance-modal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    {% if form.errors %}
+    document.getElementById('finance-modal').style.display = 'grid';
+    {% endif %}
+</script>
+{% endblock %}

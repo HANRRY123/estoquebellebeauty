@@ -1,0 +1,82 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Dashboard - BelleBeauty{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <span>Total de Produtos</span>
+        <strong>{{ total_products }}</strong>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">💲</div>
+        <span>Valor de Estoque</span>
+        <strong>R$ {{ stock_value|floatformat:2 }}</strong>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <span>Lucro Potencial</span>
+        <strong>R$ {{ potential_profit|floatformat:2 }}</strong>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🧾</div>
+        <span>Bruto com Vendas</span>
+        <strong>R$ {{ gross_sales|floatformat:2 }}</strong>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <span>Líquido com Vendas</span>
+        <strong>R$ {{ net_sales|floatformat:2 }}</strong>
+    </div>
+</div>
+
+<div class="table-panels">
+    <section class="panel">
+        <div class="panel-title">Produtos Mais Vendidos 🔥</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Vendas</th>
+                    <th>Estoque</th>
+                    <th>Bruto</th>
+                    <th>Lucro</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in top_sold %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.total_sold }}</td>
+                    <td>{{ product.quantity }}</td>
+                    <td>R$ {{ product.total_revenue|floatformat:2 }}</td>
+                    <td>R$ {{ product.total_profit|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    <section class="panel">
+        <div class="panel-title">Controle de Estoque 📦</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Estoque</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in low_stock %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.quantity }}</td>
+                    <td class="status-{{ product.status|lower }}">{{ product.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+{% endblock %}

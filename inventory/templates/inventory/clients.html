@@ -1,0 +1,97 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Clientes - BelleBeauty{% endblock %}
+
+{% block page_title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="toolbar-row">
+    <div></div>
+    <button type="button" class="button-primary add-product-button" id="open-client-modal">+ Novo Cliente</button>
+</div>
+
+<div class="sales-grid">
+    {% for client in clients %}
+    <article class="sale-card">
+        <div class="sale-heading">
+            <span class="sale-icon">👤</span>
+            <div>
+                <strong>{{ client.name }}</strong>
+                <div class="sale-meta">{% if client.instagram %}@{{ client.instagram }}{% else %}Sem Instagram{% endif %}</div>
+            </div>
+        </div>
+        <div class="sale-details">
+            {% if client.phone %}<div>Telefone: <strong>{{ client.phone }}</strong></div>{% endif %}
+            {% if client.address %}<div>Endereço: <strong>{{ client.address }}</strong></div>{% endif %}
+            {% if client.complement %}<div>Complemento: <strong>{{ client.complement }}</strong></div>{% endif %}
+            {% if client.cpf_cnpj %}<div>CPF/CNPJ: <strong>{{ client.cpf_cnpj }}</strong></div>{% endif %}
+        </div>
+    </article>
+    {% empty %}
+    <div class="empty-state">Nenhum cliente cadastrado ainda.</div>
+    {% endfor %}
+</div>
+
+<div class="modal-overlay" id="client-modal" aria-hidden="true">
+    <div class="modal-card">
+        <button type="button" class="button-close" id="close-client-modal">×</button>
+        <h2>Novo Cliente</h2>
+        <form method="post" class="sale-form">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-field full-width">
+                    {{ form.name.label_tag }}
+                    {{ form.name }}
+                    {{ form.name.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.instagram.label_tag }}
+                    {{ form.instagram }}
+                    {{ form.instagram.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.phone.label_tag }}
+                    {{ form.phone }}
+                    {{ form.phone.errors }}
+                </div>
+                <div class="form-field full-width">
+                    {{ form.address.label_tag }}
+                    {{ form.address }}
+                    {{ form.address.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.complement.label_tag }}
+                    {{ form.complement }}
+                    {{ form.complement.errors }}
+                </div>
+                <div class="form-field">
+                    {{ form.cpf_cnpj.label_tag }}
+                    {{ form.cpf_cnpj }}
+                    {{ form.cpf_cnpj.errors }}
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="button-primary full-width">Registrar Cliente</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('open-client-modal').addEventListener('click', function() {
+        document.getElementById('client-modal').style.display = 'grid';
+    });
+    document.getElementById('close-client-modal').addEventListener('click', function() {
+        document.getElementById('client-modal').style.display = 'none';
+    });
+    document.addEventListener('click', function(event) {
+        var modal = document.getElementById('client-modal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    {% if form.errors %}
+    document.getElementById('client-modal').style.display = 'grid';
+    {% endif %}
+</script>
+{% endblock %}
